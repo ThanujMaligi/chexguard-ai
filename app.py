@@ -40,7 +40,7 @@ from models.ood_detector import OODDetector
 
 
 # -----------------------------------------------------------------------------
-# Page Configuration & Styling
+# Page Configuration & Modern Theme-Adaptive Styling
 # -----------------------------------------------------------------------------
 st.set_page_config(
     page_title="CheXGuard AI | Medical Image Diagnostic Assistant",
@@ -49,56 +49,63 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for clinical styling
+# Custom CSS for clinical glassmorphism & dark/light theme compatibility
 st.markdown("""
 <style>
-    .main-header {
+    .main-title {
         font-size: 2.2rem;
         font-weight: 800;
-        color: #0D47A1;
-        margin-bottom: 0px;
+        background: linear-gradient(90deg, #60A5FA, #38BDF8, #818CF8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 2px;
+        line-height: 1.2;
     }
-    .sub-header {
-        font-size: 1.05rem;
-        color: #455A64;
-        margin-bottom: 12px;
+    .sub-title {
+        font-size: 1.0rem;
+        color: #94A3B8;
+        margin-bottom: 14px;
+        font-weight: 400;
+    }
+    .badge-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 16px;
     }
     .badge-pill {
         display: inline-block;
-        padding: 3px 10px;
-        margin-right: 6px;
-        margin-bottom: 8px;
-        border-radius: 12px;
+        padding: 4px 12px;
+        border-radius: 14px;
         font-size: 0.80rem;
         font-weight: 600;
+        letter-spacing: 0.3px;
     }
-    .badge-blue { background-color: #E3F2FD; color: #1565C0; border: 1px solid #90CAF9; }
-    .badge-green { background-color: #E8F5E9; color: #2E7D32; border: 1px solid #A5D6A7; }
-    .badge-purple { background-color: #F3E5F5; color: #7B1FA2; border: 1px solid #CE93D8; }
-    .badge-red { background-color: #FFEBEE; color: #C62828; border: 1px solid #EF9A9A; }
+    .badge-blue { background-color: rgba(59, 130, 246, 0.16); color: #60A5FA; border: 1px solid rgba(59, 130, 246, 0.35); }
+    .badge-green { background-color: rgba(34, 197, 94, 0.16); color: #4ADE80; border: 1px solid rgba(34, 197, 94, 0.35); }
+    .badge-purple { background-color: rgba(168, 85, 247, 0.16); color: #C084FC; border: 1px solid rgba(168, 85, 247, 0.35); }
+    .badge-red { background-color: rgba(239, 68, 68, 0.16); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.35); }
     .metric-card {
-        background-color: #FAFAFA;
-        border-radius: 8px;
-        padding: 12px 16px;
-        border-left: 4px solid #1976D2;
-        margin-bottom: 10px;
+        background-color: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        border-radius: 10px;
+        padding: 14px 18px;
+        border-left: 4px solid #38BDF8;
+        margin-bottom: 12px;
     }
     .safety-pass {
-        background-color: #E8F5E9;
-        border: 1px solid #81C784;
+        background-color: rgba(34, 197, 94, 0.12);
+        border: 1px solid rgba(34, 197, 94, 0.40);
         border-radius: 8px;
-        padding: 12px 16px;
-        color: #1B5E20;
+        padding: 12px 18px;
+        color: #4ADE80;
     }
     .safety-halt {
-        background-color: #FFEBEE;
-        border: 2px solid #E53935;
+        background-color: rgba(239, 68, 68, 0.12);
+        border: 2px solid #EF4444;
         border-radius: 8px;
         padding: 16px 20px;
-        color: #B71C1C;
-    }
-    .stProgress > div > div > div > div {
-        background-color: #1976D2;
+        color: #F87171;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -120,28 +127,28 @@ def load_cached_ood_detector():
     return OODDetector()
 
 
+@st.cache_resource(show_spinner=False)
+def load_cached_gradcam(_model):
+    """Instantiates and caches the Grad-CAM engine attached to the model."""
+    return GradCAM(_model, _model.get_target_layer())
+
+
 # -----------------------------------------------------------------------------
 # Header Section
 # -----------------------------------------------------------------------------
-col_title, col_info = st.columns([3, 1])
-with col_title:
-    st.markdown('<div class="main-header">🏥 CheXGuard AI: Thoracic Diagnostic & Triage Suite</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sub-header">Explainable Multi-Label Chest Pathology Detection with Epistemic Uncertainty & Responsible AI Guardrails</div>', unsafe_allow_html=True)
-
-with col_info:
-    st.markdown("""
-        <div style="text-align: right; padding-top: 5px;">
-            <span class="badge-pill badge-blue">Neural Storm 2026</span><br/>
-            <span class="badge-pill badge-green">Track 3: Human Impact [HI-01]</span>
-        </div>
-    """, unsafe_allow_html=True)
+st.markdown('<div class="main-title">🏥 CheXGuard AI: Thoracic Diagnostic & Triage Suite</div>', unsafe_allow_html=True)
+st.markdown('<div class="sub-title">Explainable Multi-Label Chest Pathology Detection with Epistemic Uncertainty & Responsible AI Guardrails</div>', unsafe_allow_html=True)
 
 st.markdown("""
+<div class="badge-bar">
+    <span class="badge-pill badge-blue">Neural Storm 2026</span>
+    <span class="badge-pill badge-green">Track 3: Human Impact [HI-01]</span>
     <span class="badge-pill badge-blue">DenseNet121 Backbone</span>
     <span class="badge-pill badge-green">Grad-CAM Explainability</span>
     <span class="badge-pill badge-purple">Bayesian MC Dropout (95% CI)</span>
     <span class="badge-pill badge-red">OOD Biometric Guardrails</span>
     <span class="badge-pill badge-blue">Sub-50ms CPU Latency</span>
+</div>
 """, unsafe_allow_html=True)
 
 st.markdown("---")
@@ -210,7 +217,7 @@ mc_iterations = st.sidebar.slider(
     max_value=30,
     value=15,
     step=5,
-    help="Higher samples yield tighter Bayesian posterior uncertainty estimates."
+    help="Bayesian posterior uncertainty iterations."
 )
 
 heatmap_alpha = st.sidebar.slider(
@@ -241,11 +248,11 @@ if input_image is None:
     st.warning("Please select a sample case or upload an image to begin evaluation.")
     st.stop()
 
-# Initialize Models
+# Initialize Cached Models
 model = load_cached_model()
 ood_detector = load_cached_ood_detector()
 uq_engine = MonteCarloUncertaintyEngine(model, TARGET_PATHOLOGIES)
-gradcam = GradCAM(model, model.get_target_layer())
+gradcam = load_cached_gradcam(model)
 
 # 1. Step 1: Out-of-Distribution (OOD) & Image Integrity Check
 with st.spinner("Analyzing image integrity and distribution characteristics..."):
@@ -259,12 +266,12 @@ st.subheader("1. Clinical Input Integrity & Safety Guardrail")
 if not is_valid:
     st.markdown(f"""
         <div class="safety-halt">
-            <h4 style="margin: 0; color: #B71C1C;">🛑 RESPONSIBLE AI SAFETY HALT: Out-of-Distribution Input Detected</h4>
-            <p style="margin-top: 8px; margin-bottom: 8px;">
+            <h4 style="margin: 0; color: #F87171;">🛑 RESPONSIBLE AI SAFETY HALT: Out-of-Distribution Input Detected</h4>
+            <p style="margin-top: 8px; margin-bottom: 8px; color: #CBD5E1;">
                 <b>Safety Reason:</b> {ood_results['reason']}<br/>
                 <b>OOD Risk Score:</b> <code>{ood_score} / 1.00</code> (Safety Rejection Threshold: <code>0.40</code>)
             </p>
-            <p style="margin: 0; font-size: 0.85rem;">
+            <p style="margin: 0; font-size: 0.85rem; color: #94A3B8;">
                 <b>Responsible AI Safeguard:</b> Medical diagnostic models must never hallucinate disease predictions on invalid non-radiographic images (e.g. selfies, landscape photos, or text). Diagnostic inference has been safely suspended.
             </p>
         </div>
@@ -293,7 +300,7 @@ else:
         st.caption(f"Contrast: **{m['contrast_std']}** | Dynamic Range: **{m['dynamic_range']}** | Symmetry: **{m['symmetry_diff']}**")
 
 
-# 2. Step 2: Preprocessing & Bayesian Inference
+# 2. Step 2: Accelerated Preprocessing & Bayesian Inference
 tensor, display_img = preprocess_radiograph(input_image)
 
 t_start = time.perf_counter()
@@ -338,11 +345,13 @@ with col_view1:
     st.image(display_img, caption="1. Original Preprocessed Radiograph", use_container_width=True)
 
 with col_view2:
-    # Render pure heatmap in matplotlib
     fig_cam, ax_cam = plt.subplots(figsize=(4, 4))
+    fig_cam.patch.set_alpha(0.0)
+    ax_cam.patch.set_alpha(0.0)
     im = ax_cam.imshow(heatmap_2d, cmap=colormap_choice)
     ax_cam.axis("off")
-    fig_cam.colorbar(im, ax=ax_cam, fraction=0.046, pad=0.04)
+    cbar = fig_cam.colorbar(im, ax=ax_cam, fraction=0.046, pad=0.04)
+    cbar.ax.tick_params(colors="#94A3B8", labelsize=8)
     plt.tight_layout()
     st.pyplot(fig_cam, use_container_width=True)
     plt.close(fig_cam)
@@ -388,8 +397,11 @@ st.dataframe(
     hide_index=True
 )
 
-# Plot Horizontal Probability Bars with 95% CI Error Bars
+# Plot Horizontal Probability Bars with Theme-Adaptive Aesthetics
 fig_bars, ax_bars = plt.subplots(figsize=(9, 3.8))
+fig_bars.patch.set_alpha(0.0)
+ax_bars.patch.set_alpha(0.0)
+
 y_positions = np.arange(len(TARGET_PATHOLOGIES))
 prob_values = [predictions[n]["mean_probability"] * 100.0 for n in TARGET_PATHOLOGIES]
 ci_lowers = [predictions[n]["ci_95_lower"] * 100.0 for n in TARGET_PATHOLOGIES]
@@ -400,18 +412,21 @@ errors_right = [ci_uppers[i] - prob_values[i] for i in range(len(prob_values))]
 bar_colors = []
 for n, p in zip(TARGET_PATHOLOGIES, prob_values):
     if n == "No Finding":
-        bar_colors.append("#2E7D32" if p >= 50.0 else "#78909C")
+        bar_colors.append("#22C55E" if p >= 50.0 else "#64748B")
     else:
-        bar_colors.append("#C62828" if p >= (decision_threshold * 100.0) else "#1976D2")
+        bar_colors.append("#EF4444" if p >= (decision_threshold * 100.0) else "#38BDF8")
 
-bars = ax_bars.barh(y_positions, prob_values, xerr=[errors_left, errors_right], capsize=4, color=bar_colors, alpha=0.85, height=0.55)
-ax_bars.axvline(x=decision_threshold * 100.0, color="#E53935", linestyle="--", linewidth=1.2, label=f"Threshold ({int(decision_threshold*100)}%)")
+bars = ax_bars.barh(y_positions, prob_values, xerr=[errors_left, errors_right], capsize=4, color=bar_colors, alpha=0.90, height=0.55)
+ax_bars.axvline(x=decision_threshold * 100.0, color="#F87171", linestyle="--", linewidth=1.4, label=f"Threshold ({int(decision_threshold*100)}%)")
 ax_bars.set_yticks(y_positions)
-ax_bars.set_yticklabels(TARGET_PATHOLOGIES, fontsize=9, fontweight='bold')
+ax_bars.set_yticklabels(TARGET_PATHOLOGIES, fontsize=9, fontweight='bold', color="#E2E8F0")
 ax_bars.set_xlim(0, 105)
-ax_bars.set_xlabel("Predictive Probability with 95% Confidence Bounds (%)", fontsize=9)
-ax_bars.grid(axis='x', linestyle=':', alpha=0.6)
-ax_bars.legend(loc="lower right", fontsize=8)
+ax_bars.set_xlabel("Predictive Probability with 95% Confidence Bounds (%)", fontsize=9, color="#94A3B8")
+ax_bars.tick_params(colors="#94A3B8", labelsize=9)
+for spine in ax_bars.spines.values():
+    spine.set_color("#334155")
+ax_bars.grid(axis='x', linestyle=':', alpha=0.3, color="#64748B")
+ax_bars.legend(loc="lower right", fontsize=8, facecolor="none", edgecolor="#475569", labelcolor="#E2E8F0")
 plt.tight_layout()
 st.pyplot(fig_bars, use_container_width=True)
 plt.close(fig_bars)
@@ -428,26 +443,26 @@ col_t1, col_t2, col_t3 = st.columns([1.5, 1.5, 3])
 with col_t1:
     st.markdown(f"""
         <div class="metric-card" style="border-left-color: {triage_info['badge_color']};">
-            <div style="font-size: 0.85rem; color: #555;">TRIAGE PRIORITY TIER</div>
-            <div style="font-size: 1.3rem; font-weight: 800; color: {triage_info['badge_color']};">{triage_info['priority_tier']}</div>
-            <div style="font-size: 0.80rem; margin-top: 4px;">Primary Finding: <b>{triage_info['primary_concern']}</b></div>
+            <div style="font-size: 0.85rem; color: #94A3B8;">TRIAGE PRIORITY TIER</div>
+            <div style="font-size: 1.25rem; font-weight: 800; color: {triage_info['badge_color']};">{triage_info['priority_tier']}</div>
+            <div style="font-size: 0.80rem; margin-top: 4px; color: #E2E8F0;">Primary Finding: <b>{triage_info['primary_concern']}</b></div>
         </div>
     """, unsafe_allow_html=True)
 
 with col_t2:
     st.markdown(f"""
         <div class="metric-card">
-            <div style="font-size: 0.85rem; color: #555;">CLINICAL URGENCY INDEX</div>
-            <div style="font-size: 1.3rem; font-weight: 800; color: #0D47A1;">{triage_info['urgency_score']:.2f} / 1.00</div>
-            <div style="font-size: 0.80rem; margin-top: 4px;">Inference Latency: <b>{inference_time_ms:.1f} ms</b> (CPU)</div>
+            <div style="font-size: 0.85rem; color: #94A3B8;">CLINICAL URGENCY INDEX</div>
+            <div style="font-size: 1.25rem; font-weight: 800; color: #38BDF8;">{triage_info['urgency_score']:.2f} / 1.00</div>
+            <div style="font-size: 0.80rem; margin-top: 4px; color: #E2E8F0;">Inference Latency: <b>{inference_time_ms:.1f} ms</b> (CPU)</div>
         </div>
     """, unsafe_allow_html=True)
 
 with col_t3:
     st.markdown(f"""
-        <div class="metric-card" style="border-left-color: #388E3C;">
-            <div style="font-size: 0.85rem; color: #555;">RECOMMENDED CLINICAL ACTION</div>
-            <div style="font-size: 0.95rem; font-weight: 600; color: #1B5E20; margin-top: 4px;">
+        <div class="metric-card" style="border-left-color: #22C55E;">
+            <div style="font-size: 0.85rem; color: #94A3B8;">RECOMMENDED CLINICAL ACTION</div>
+            <div style="font-size: 0.92rem; font-weight: 600; color: #4ADE80; margin-top: 4px;">
                 {triage_info['recommended_action']}
             </div>
         </div>

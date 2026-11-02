@@ -52,10 +52,21 @@ class MonteCarloUncertaintyEngine:
 
         samples = []
         with torch.no_grad():
-            for _ in range(num_iterations):
-                logits = self.model(input_tensor)
-                probs = torch.sigmoid(logits).squeeze(0).cpu().numpy()
-                samples.append(probs)
+            if hasattr(self.model, 'forward_from_features'):
+                # Accelerated Bayesian sampling: extract deterministic features once
+                feat = self.model.features(input_tensor)
+                feat = torch.nn.functional.relu(feat, inplace=True)
+                feat_norm = torch.nn.functional.normalize(feat, p=2, dim=1)
+                anat = self.model.extract_anatomical_features(input_tensor)
+                for _ in range(num_iterations):
+                    logits = self.model.forward_from_features(feat_norm, anat)
+                    probs = torch.sigmoid(logits).squeeze(0).cpu().numpy()
+                    samples.append(probs)
+            else:
+                for _ in range(num_iterations):
+                    logits = self.model(input_tensor)
+                    probs = torch.sigmoid(logits).squeeze(0).cpu().numpy()
+                    samples.append(probs)
 
         # Revert model to evaluation mode
         self.model.eval()

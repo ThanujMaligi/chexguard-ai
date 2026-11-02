@@ -126,14 +126,8 @@ class CheXGuardNet(nn.Module):
             "global_mean": global_mean
         }
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """
-        Forward pass producing multi-label logits for target pathologies.
-        """
-        # DenseNet feature extraction with L2 normalization to ensure scale stability
-        feat = self.features(x)  # [B, 1024, 7, 7]
-        feat = F.relu(feat, inplace=True)
-        feat_norm = F.normalize(feat, p=2, dim=1)
+    def forward_from_features(self, feat_norm: torch.Tensor, anat: Dict[str, torch.Tensor]) -> torch.Tensor:
+        """Fast forward pass taking pre-extracted features and anatomical metrics."""
         feat_spatial = self.spatial_conv(feat_norm)  # [B, 128, 7, 7]
         feat_spatial = self.dropout(feat_spatial)    # Latent Bayesian dropout
 
@@ -142,9 +136,6 @@ class CheXGuardNet(nn.Module):
         mid_lung_act = torch.mean(feat_spatial[:, :, 2:5, 0:3], dim=(1, 2, 3))
         cp_angle_act = torch.mean(feat_spatial[:, :, 4:7, 0:3], dim=(1, 2, 3))
         apical_act = torch.mean(feat_spatial[:, :, 0:3, 4:7], dim=(1, 2, 3))
-
-        # Extract anatomical image signals
-        anat = self.extract_anatomical_features(x)
 
         # Calibrated physiological score mapping:
         # 1. Cardiomegaly: prominent cardiac silhouette
@@ -183,6 +174,17 @@ class CheXGuardNet(nn.Module):
             logits = logits.unsqueeze(0)
 
         return logits
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Forward pass producing multi-label logits for target pathologies.
+        """
+        # DenseNet feature extraction with L2 normalization to ensure scale stability
+        feat = self.features(x)  # [B, 1024, 7, 7]
+        feat = F.relu(feat, inplace=True)
+        feat_norm = F.normalize(feat, p=2, dim=1)
+        anat = self.extract_anatomical_features(x)
+        return self.forward_from_features(feat_norm, anat)
 
     def predict_probabilities(self, x: torch.Tensor) -> torch.Tensor:
         """Computes multi-label probabilities."""
