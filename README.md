@@ -159,7 +159,7 @@ In strict alignment with the Neural Storm 2026 guidelines for sensitive healthca
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/<your-username>/chexguard-ai.git
+git clone https://github.com/ThanujMaligi/chexguard-ai.git
 cd chexguard-ai
 ```
 
@@ -250,9 +250,11 @@ chexguard-ai/
 
 ## 👥 Neural Storm 2026 Submission Information
 
+- **Developer / Team:** Thanuj Maligi
 - **Track:** Track 3: Human Impact
 - **Problem Statement Code:** HI-01 (Medical Image Diagnostic Assistant)
 - **Project Title:** CheXGuard AI
+- **Repository URL:** [https://github.com/ThanujMaligi/chexguard-ai](https://github.com/ThanujMaligi/chexguard-ai)
 - **Repository Visibility:** Public
 - **Live Deployment Platform:** Streamlit Cloud / Hugging Face Spaces
 
