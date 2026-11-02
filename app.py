@@ -170,10 +170,19 @@ sample_options = {
     "Custom Upload: Choose Local File": "CUSTOM"
 }
 
+# Support URL query parameter for automated case inspection (e.g. ?case=case2_pneumonia.png)
+default_index = 1
+if "case" in st.query_params:
+    param_case = st.query_params["case"]
+    for idx, (lbl, val) in enumerate(sample_options.items()):
+        if val == param_case:
+            default_index = idx
+            break
+
 selected_sample_label = st.sidebar.selectbox(
     "Select Radiograph Case:",
     options=list(sample_options.keys()),
-    index=1  # Default to Pneumonia
+    index=default_index
 )
 
 selected_file_code = sample_options[selected_sample_label]
