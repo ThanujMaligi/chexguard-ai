@@ -1,0 +1,125 @@
+{
+  "dataset_name": "CheXpert / NIH ChestX-ray14 Clinical Cohort (Audit Subset)",
+  "evaluation_timestamp": "2026-11-02 20:28:51 IST",
+  "total_evaluated_studies": 1000,
+  "aggregate_metrics": {
+    "mean_macro_auc": 0.952,
+    "mean_macro_f1": 0.7017,
+    "latency_mean_ms": 445.84,
+    "latency_p50_ms": 415.07,
+    "latency_p95_ms": 704.35,
+    "throughput_fps": 2.2
+  },
+  "pathology_benchmarks": {
+    "Atelectasis": {
+      "roc_auc": 0.9351,
+      "sensitivity_recall": 0.8431,
+      "specificity": 0.8844,
+      "precision": 0.6515,
+      "f1_score": 0.735,
+      "optimal_decision_threshold": 0.51,
+      "confusion_matrix": {
+        "tp": 172,
+        "fp": 92,
+        "tn": 704,
+        "fn": 32
+      }
+    },
+    "Cardiomegaly": {
+      "roc_auc": 0.9508,
+      "sensitivity_recall": 0.8742,
+      "specificity": 0.8846,
+      "precision": 0.5739,
+      "f1_score": 0.6929,
+      "optimal_decision_threshold": 0.5,
+      "confusion_matrix": {
+        "tp": 132,
+        "fp": 98,
+        "tn": 751,
+        "fn": 19
+      }
+    },
+    "Pleural Effusion": {
+      "roc_auc": 0.9583,
+      "sensitivity_recall": 0.9143,
+      "specificity": 0.8824,
+      "precision": 0.6226,
+      "f1_score": 0.7407,
+      "optimal_decision_threshold": 0.5,
+      "confusion_matrix": {
+        "tp": 160,
+        "fp": 97,
+        "tn": 728,
+        "fn": 15
+      }
+    },
+    "Pneumonia": {
+      "roc_auc": 0.9471,
+      "sensitivity_recall": 0.8671,
+      "specificity": 0.881,
+      "precision": 0.5487,
+      "f1_score": 0.6721,
+      "optimal_decision_threshold": 0.52,
+      "confusion_matrix": {
+        "tp": 124,
+        "fp": 102,
+        "tn": 755,
+        "fn": 19
+      }
+    },
+    "Pneumothorax": {
+      "roc_auc": 0.9664,
+      "sensitivity_recall": 0.9351,
+      "specificity": 0.8667,
+      "precision": 0.3692,
+      "f1_score": 0.5294,
+      "optimal_decision_threshold": 0.47,
+      "confusion_matrix": {
+        "tp": 72,
+        "fp": 123,
+        "tn": 800,
+        "fn": 5
+      }
+    },
+    "No Finding": {
+      "roc_auc": 0.9545,
+      "sensitivity_recall": 0.8436,
+      "specificity": 0.9081,
+      "precision": 0.8366,
+      "f1_score": 0.8401,
+      "optimal_decision_threshold": 0.54,
+      "confusion_matrix": {
+        "tp": 302,
+        "fp": 59,
+        "tn": 583,
+        "fn": 56
+      }
+    }
+  },
+  "comparative_benchmarks": [
+    {
+      "model_architecture": "Vanilla ResNet-18",
+      "parameters_m": 11.2,
+      "mean_auc": 0.852,
+      "latency_cpu_ms": 22.4,
+      "explainability_resolution": "Moderate (7x7)",
+      "safety_ood_safeguard": "None"
+    },
+    {
+      "model_architecture": "Standard DenseNet-121",
+      "parameters_m": 7.0,
+      "mean_auc": 0.891,
+      "latency_cpu_ms": 38.1,
+      "explainability_resolution": "Standard Grad-CAM",
+      "safety_ood_safeguard": "None"
+    },
+    {
+      "model_architecture": "CheXGuardNet (Ours: DenseNet + AVP + MC-Dropout)",
+      "parameters_m": 7.3,
+      "mean_auc": 0.952,
+      "latency_cpu_ms": 445.8,
+      "explainability_resolution": "High-Fidelity Anatomical Grad-CAM",
+      "safety_ood_safeguard": "Dual-Stage Monochromatic & Spectral Guardrail"
+    }
+  ]
+}
